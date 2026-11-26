@@ -20,6 +20,7 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Res
 from pydantic import BaseModel, Field
 
 from . import artwork, config, guide, library
+from .autoplay import Autoplay
 from .cast import MAX_SEGMENT, Casts, Refused
 from .db import DB, DEFAULT_SETTINGS
 from .downloads import DownloadManager, label
@@ -38,6 +39,7 @@ db = DB(config.DB_PATH)
 engine = Engine(db)
 downloads = DownloadManager(db, engine)
 casts = Casts(db)
+autoplay = Autoplay(db)
 sup = Supervisor(db)
 viewers: dict[tuple[int | str, str], float] = {}
 started = time.time()
@@ -82,6 +84,7 @@ async def lifespan(_: FastAPI):
     sup.add("discovery", _discover_tick, 60, 1800)
     sup.add("metadata", _enrich_tick, 1, 600)
     sup.add("artwork", _art_tick, 6, 600)
+    sup.add("autoplay-movies", autoplay.refresh_due, 3600, 7200)
     db.event("info", "system", "MyTV started")
 
     async def watchdog():
@@ -103,14 +106,26 @@ app = FastAPI(title="MyTV", lifespan=lifespan)
 
 @app.middleware("http")
 async def guard(request: Request, call_next):
-    """Mutations must come from the dashboard itself, not from some other website open in a browser."""
+    """Mutations must come from the dashboard, or the local autoplay extension's narrow API."""
+    origin = request.headers.get("origin")
+    path = request.url.path
+    extension_api = bool(origin and origin.startswith("chrome-extension://") and (
+        path in ("/api/cast", "/api/autoplay/library") or re.fullmatch(r"/api/cast/\d+/autoplay(?:/(?:next|state))?", path)
+    ))
+    if request.method == "OPTIONS" and extension_api:
+        return Response(status_code=204, headers={
+            "Access-Control-Allow-Origin": origin, "Access-Control-Allow-Methods": "GET, POST, PATCH",
+            "Access-Control-Allow-Headers": "Content-Type", "Access-Control-Max-Age": "3600",
+        })
     if request.method not in ("GET", "HEAD", "OPTIONS"):
-        origin = request.headers.get("origin")
-        if origin and urlsplit(origin).netloc != request.headers.get("host"):
+        if origin and urlsplit(origin).netloc != request.headers.get("host") and not extension_api:
             return JSONResponse({"detail": "Cross-site request refused"}, 403)
         if not config.ADMIN_FROM_LAN and request.client and request.client.host not in ("127.0.0.1", "::1"):
             return JSONResponse({"detail": "Changes are only allowed from the Mac running MyTV"}, 403)
-    return await call_next(request)
+    response = await call_next(request)
+    if extension_api:
+        response.headers["Access-Control-Allow-Origin"] = origin
+    return response
 
 
 def base_url(request: Request) -> str:
@@ -597,7 +612,11 @@ def cast_channel(cid: int) -> dict:
 
 
 def cast_status(ch: dict) -> dict:
-    return casts.status(ch) | {"viewers": watching(f"cast{ch['id']}", time.time())}
+    auto = autoplay.get(ch["id"]) | {"discovery": autoplay.discovery()}
+    status = casts.status(ch) | {"viewers": watching(f"cast{ch['id']}", time.time()), "autoplay": auto}
+    if auto["enabled"] and auto.get("current"):
+        status["title"] = auto["current"]["title"]
+    return status
 
 
 @app.api_route("/onair/{cid}.m3u8", methods=["GET", "HEAD"])
@@ -633,6 +652,54 @@ def cast_segment(cid: int, seq: int):
 @app.get("/api/cast")
 def cast_list():
     return [cast_status(c) for c in casts.channels()]
+
+
+@app.get("/api/autoplay/library")
+def autoplay_library():
+    from .autoplay import COLLECTIONS, SHOWS
+    return {"collections": COLLECTIONS, "shows": SHOWS, "movies": autoplay.movies(), "discovery": autoplay.discovery()}
+
+
+@app.get("/api/cast/{cid}/autoplay")
+def autoplay_get(cid: int):
+    cast_channel(cid)
+    return autoplay.get(cid)
+
+
+class AutoplayPatch(BaseModel):
+    enabled: bool | None = None
+    collection: str | None = Field(None, max_length=30)
+
+
+@app.patch("/api/cast/{cid}/autoplay")
+def autoplay_patch(cid: int, body: AutoplayPatch):
+    cast_channel(cid)
+    try:
+        return autoplay.configure(cid, body.enabled, body.collection)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+
+
+@app.post("/api/cast/{cid}/autoplay/next")
+def autoplay_next(cid: int):
+    cast_channel(cid)
+    try:
+        return autoplay.next(cid)
+    except RuntimeError as e:
+        raise HTTPException(503, str(e))
+
+
+class AutoplayState(BaseModel):
+    title: str = Field("", max_length=200)
+    url: str = Field(max_length=500)
+
+
+@app.post("/api/cast/{cid}/autoplay/state")
+def autoplay_state(cid: int, body: AutoplayState):
+    cast_channel(cid)
+    if urlsplit(body.url).hostname != "7movies.ws":
+        raise HTTPException(422, "Autoplay links must be on 7movies.ws")
+    return autoplay.record_state(cid, body.title.strip(), body.url)
 
 
 class CastNew(BaseModel):

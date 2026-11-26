@@ -16,9 +16,14 @@ export type ChannelStatus = Channel & {
   state: 'on_air' | 'rerun' | 'standby' | 'off_air'; now: Program | null; next: Program[]; queue_length: number; queue_ready: number
   elapsed: number; viewers: number
 }
+export type Autoplay = {
+  enabled: boolean; collection: 'sitcoms' | 'movies'; linked_at: number | null
+  current: { title: string; url: string; at: number } | null
+  discovery: { updated_at: number | null; discovered: number; total: number }
+}
 export type LiveChannel = {
   id: number; number: number; name: string; accent: string; logo: string; stream: string; live: boolean; session: string | null
-  started: number | null; title: string; viewers: number; info: { kbps?: number; note?: string }
+  started: number | null; title: string; viewers: number; info: { kbps?: number; note?: string }; autoplay: Autoplay
 }
 export type Storage = { cache_bytes: number; download_bytes: number; limit_bytes: number; free_bytes: number; total_bytes: number; min_free_bytes: number }
 export type Status = {

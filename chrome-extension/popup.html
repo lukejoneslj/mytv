@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MyTV Autoplay</title>
+  <style>
+    :root { color-scheme: dark; font: 14px -apple-system, BlinkMacSystemFont, sans-serif; background: #14130f; color: #f3efe6; }
+    body { width: 340px; margin: 0; padding: 18px; box-sizing: border-box; }
+    h1 { font-size: 20px; margin: 0 0 4px; } p { color: #a29c8e; line-height: 1.4; margin: 0 0 16px; }
+    label { display: block; color: #a29c8e; font-size: 12px; margin: 12px 0 5px; }
+    select, input { box-sizing: border-box; width: 100%; background: #100f0c; color: #f3efe6; border: 1px solid #332f26; border-radius: 6px; padding: 9px; font: inherit; }
+    button { width: 100%; border: 0; border-radius: 6px; padding: 10px; margin-top: 12px; background: #f3efe6; color: #14130f; font: 600 14px inherit; cursor: pointer; }
+    button.secondary { background: #26231c; color: #f3efe6; border: 1px solid #332f26; }
+    button:disabled { opacity: .45; cursor: default; }
+    #status { margin-top: 12px; margin-bottom: 0; } #status.bad { color: #e5654f; } #status.ok { color: #6fbf73; }
+    details { border-top: 1px solid #332f26; margin-top: 16px; padding-top: 12px; } summary { cursor: pointer; color: #a29c8e; }
+    .current { color: #f3efe6; margin-top: 14px; }
+  </style>
+</head>
+<body>
+  <h1>MyTV Autoplay</h1>
+  <p>Link this 7Movies tab to a live channel. When the episode or movie ends, the next one starts in this same tab.</p>
+  <label for="channel">Live channel</label>
+  <select id="channel"></select>
+  <label for="collection">Random library</label>
+  <select id="collection">
+    <option value="sitcoms">Sitcoms</option>
+    <option value="movies">Popular &amp; trending movies</option>
+  </select>
+  <button id="link">Link tab &amp; enable autoplay</button>
+  <button id="next" class="secondary" hidden>Play another now</button>
+  <button id="unlink" class="secondary" hidden>Disable autoplay for this tab</button>
+  <p id="current" class="current" hidden></p>
+  <p id="status" role="status"></p>
+  <details>
+    <summary>MyTV server address</summary>
+    <label for="server">Dashboard address</label>
+    <input id="server" type="url" placeholder="http://localhost:8400">
+    <button id="saveServer" class="secondary">Save address</button>
+  </details>
+  <script src="popup.js"></script>
+</body>
+</html>

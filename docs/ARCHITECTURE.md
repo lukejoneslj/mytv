@@ -30,6 +30,7 @@ from the airings table and the clock:
 | `providers/` | One class per source; add a source by adding a class |
 | `guide.py` | M3U and XMLTV |
 | `cast.py`, `frontend/src/cast/` | Live channels fed from Chrome on the Mac |
+| `autoplay.py`, `chrome-extension/` | Random 7Movies libraries and automatic next-title navigation in linked tabs |
 | `supervisor.py`, `scripts/run.sh` | Restart background loops; restart the process if it dies or hangs |
 
 ## Live channels from the Mac
@@ -51,6 +52,14 @@ playlist never ends and a TV that is tuned in carries on by itself when a stream
 - Tested: three tabs at 1080p60 and five at 1080p30 at once on an M2 Pro, each with only its own sound, audio within
   about 20 ms of the picture; AVPlayer plays card to stream to card without a stall.
 
+The optional MyTV Autoplay extension links a 7Movies tab to a live channel through its popup. Content scripts run only
+for pages whose top-level origin is 7Movies, including cross-origin player frames, and listen for the real video's
+`ended` event. The service worker asks `autoplay.py` for a URL and navigates the same tab, so tab capture stays attached.
+Season counts are parsed from the site's embedded metadata and cached in SQLite. Movie cards from the home page's
+Trending, Most watched, Popular and other rails are merged with the curated fallback and refreshed every 12 hours;
+failed refreshes retain the last good catalog. Extension requests use a narrow, origin-checked API; they cannot change
+any other server setting. A CSS theater layout keeps each new player at tab size.
+
 ## Rules that protect the broadcast
 
 - Booked airings are immutable. The queue after them can change freely.
@@ -60,12 +69,8 @@ playlist never ends and a TV that is tuned in carries on by itself when a stream
 - Downloads stop before the cache limit or the free-space floor is crossed; the rerun reserve is given up first.
 - Segments are read-only files, so any number of screens can read the same one.
 
-## Content rules
+## Internet Archive content filter
 
-Sources must offer a documented, authorized way to get the file. The Internet Archive provider requires a public-domain
-license tag, a release year up to 1963 and, for films, a DBpedia entry describing an American film with no foreign
-production, because many foreign films had US copyright restored. The license tag is set by the uploader, so this is a
-careful filter and not a legal guarantee.
-
-7movies.ws was reviewed and is not used: it embeds third-party players, states that it does not verify licensing, offers
-no API, and its terms forbid extracting links or content.
+The Internet Archive provider requires a public-domain license tag, a release year up to 1963 and, for films, a DBpedia
+entry describing an American film with no foreign production, because many foreign films had US copyright restored. The
+license tag is set by the uploader, so this is a careful filter and not a legal guarantee.

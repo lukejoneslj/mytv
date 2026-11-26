@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "MyTV Autoplay",
+  "version": "1.1.0",
+  "description": "Advances linked 7Movies tabs to random shows and movies on MyTV live channels.",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["http://localhost/*", "http://127.0.0.1/*"],
+  "background": { "service_worker": "background.js" },
+  "action": {
+    "default_title": "MyTV Autoplay",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ]
+}

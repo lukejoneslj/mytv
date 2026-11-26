@@ -144,4 +144,11 @@ main { padding: 28px 32px 48px; max-width: 1720px; width: 100%; min-width: 0; }
 .livestrip { margin-top: 18px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 12px 18px; background: var(--panel); border-radius: 8px; }
 .livestrip label { font-size: 12px; color: var(--faint); margin-right: 6px; } .livestrip button { border-left: 4px solid var(--accent); } .livestrip button b { color: var(--accent); font-weight: 800; } .livestrip button span { max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
 .livestrip a { margin-left: auto; display: inline-flex; gap: 8px; align-items: center; color: var(--dim); font-weight: 600; } .livestrip a:hover { color: var(--text); }
+.autoplay { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 10px; }
+.autoplay-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.autoplay-head > span { display: flex; align-items: center; gap: 8px; } .autoplay-head b { font-size: 13px; font-weight: 600; }
+.autoplay small { line-height: 1.4; }
+.autoplay-setup { margin: -8px 0 22px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 8px; color: var(--dim); }
+.autoplay-setup summary { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text); font-weight: 600; }
+.autoplay-setup ol { list-style: decimal; padding-left: 22px; margin-top: 12px; display: grid; gap: 8px; }
 @media (max-width: 720px) { .inline-select { margin-left: 0; } }

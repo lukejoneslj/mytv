@@ -35,8 +35,7 @@ Moving the old Mac's films is optional: stop MyTV on both, copy the old `data/` 
 
 ## Rules
 
-- Content sources must offer an authorized way to get the file (see "Content rules" in docs/ARCHITECTURE.md). Do not add
-  scraped or pirate sources, embedded-player sites, or ways around a site's screen-sharing block (DRM black screens).
+- Do not add ways around a site's screen-sharing block (DRM black screens).
 - Never commit `data/`, `.env`, `library/` contents or `frontend/dist/`.
 
 ## Working on the code
@@ -50,3 +49,5 @@ Moving the old Mac's films is optional: stop MyTV on both, copy the old `data/` 
   `scripts/autostart.sh on`). Apple TV players carry on by themselves.
 - Playback checks: `swift scripts/test/avplayer_check.swift http://localhost:8400/onair/1.m3u8 30` plays a channel with
   AVPlayer, the engine the Apple TV uses.
+- Optional 7Movies autoplay uses the unpacked extension in `chrome-extension/`; setup and usage are in README.md.
+  `node scripts/test/autoplay_check.mjs` checks its real Chrome navigation flow against a throwaway server on port 8401.

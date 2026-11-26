@@ -87,6 +87,26 @@ more at once; 60 fps is for sports and games, about three at once. The TV is 10 
 Sites that block screen sharing show a black picture; MyTV cannot change that. Safari and Firefox cannot do this; use
 Chrome or Edge.
 
+### Autoplay another episode or movie
+
+For hands-free 7Movies channels, MyTV includes a small Chrome extension with a library of 20 sitcoms (random episodes)
+and a growing collection of popular movies. A 128-film curated fallback is merged with the site's Trending, Most watched,
+Popular, In cinemas, Top rated and other movie rails. MyTV refreshes that catalog every 12 hours and keeps the last good
+catalog if the site cannot be reached. The extension only acts on 7Movies pages and their player frames.
+
+1. Open `chrome://extensions`, turn on **Developer mode**, choose **Load unpacked**, and select the project's
+   `chrome-extension` folder. This is a one-time setup.
+2. In each 7Movies watch tab, click **MyTV Autoplay** in Chrome's toolbar. Choose its live channel and library, then press
+   **Link tab & enable autoplay**. Choose channel 11 for sitcoms and the other channels for movies, or mix them however
+   you like.
+3. Share each tab on the Stream page as usual. When a title ends, the extension picks another one, opens it in the same
+   captured tab and tries to start playback. Recent titles and back-to-back episodes of the same series are avoided.
+
+The Stream page also has per-channel autoplay switches and library selectors. Turning autoplay off leaves the current
+video playing and restores manual control. The first episode selection for a series fetches its season list from 7Movies;
+MyTV caches that list for 30 days so later selections are immediate. If Chrome blocks sound after an automatic navigation,
+click the new video's play button once.
+
 ## Posters
 
 Posters come from the source, TVmaze (shows), or a frame of the film. For real movie posters, create a free key at

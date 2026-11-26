@@ -41,6 +41,7 @@ def _tool(env: str, name: str) -> str:
 HOST = os.environ.get("MYTV_HOST") or "0.0.0.0"
 PORT = int(os.environ.get("MYTV_PORT") or 8400)
 PUBLIC_URL = (os.environ.get("MYTV_PUBLIC_URL") or "").rstrip("/")
+AUTOPLAY_BASE_URL = (os.environ.get("MYTV_AUTOPLAY_BASE_URL") or "https://7movies.ws").rstrip("/")
 ADMIN_FROM_LAN = (os.environ.get("MYTV_ADMIN_FROM_LAN") or "true").lower() != "false"
 TMDB_API_KEY = os.environ.get("TMDB_API_KEY") or ""
 

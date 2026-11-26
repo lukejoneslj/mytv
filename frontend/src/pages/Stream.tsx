@@ -1,4 +1,4 @@
-import { Check, Ear, EarOff, MonitorUp, Pencil, Play, Plus, Square, Trash2, TriangleAlert, X } from 'lucide-react'
+import { Check, Ear, EarOff, MonitorUp, Pencil, Play, Plus, Shuffle, Square, Trash2, TriangleAlert, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { call, usePoll, type LiveChannel } from '../api'
 import { goLive, listen, onEnded, QUALITIES, retitle, stop, stopOnServer, supported, useCasts, type Cast } from '../cast'
@@ -31,6 +31,8 @@ function Card({ ch, mine, quality, reload }: { ch: LiveChannel; mine: Cast | und
   const [busy, setBusy] = useState(false)
   const elsewhere = ch.live && !mine
   const s = mine?.stats
+  const setAutoplay = (body: { enabled?: boolean; collection?: string }) =>
+    act(() => call(`/api/cast/${ch.id}/autoplay`, 'PATCH', body), undefined, reload)
   const start = async () => {
     setBusy(true)
     try {
@@ -107,6 +109,22 @@ function Card({ ch, mine, quality, reload }: { ch: LiveChannel; mine: Cast | und
             <div className="actions"><button className="primary" disabled={busy || !supported()} onClick={start}><MonitorUp size={16} /> Choose a tab to stream</button></div>
           </>
         )}
+        <div className="autoplay">
+          <div className="autoplay-head">
+            <span><Shuffle size={16} /><b>Autoplay a new title when this one ends</b></span>
+            <input type="checkbox" role="switch" checked={ch.autoplay.enabled} onChange={(e) => setAutoplay({ enabled: e.target.checked })} aria-label={`Autoplay on ${ch.name}`} />
+          </div>
+          {ch.autoplay.enabled ? (
+            <>
+              <select value={ch.autoplay.collection} onChange={(e) => setAutoplay({ collection: e.target.value })} aria-label={`Autoplay library on ${ch.name}`}>
+                <option value="sitcoms">Sitcoms · random episodes from 20 series</option>
+                <option value="movies">Popular & trending · {ch.autoplay.discovery.total} films</option>
+              </select>
+              <small>{ch.autoplay.current ? `Selected: ${ch.autoplay.current.title}` : 'Click MyTV Autoplay in Chrome’s toolbar on the 7Movies tab to link it to this channel.'}</small>
+              {ch.autoplay.collection === 'movies' ? <small>{ch.autoplay.discovery.discovered} movies discovered on 7Movies · catalog refreshes every 12 hours</small> : null}
+            </>
+          ) : null}
+        </div>
       </div>
     </article>
   )
@@ -141,6 +159,14 @@ export default function Stream() {
         <div><b>3</b><p>In that tab press the player's full-screen button. The video then fills the TV while it stays inside its tab here.</p></div>
         <div><b>4</b><p>Repeat for more channels. Each keeps its own sound and is silent on the Mac. Leave this page open.</p></div>
       </section>
+      <details className="autoplay-setup">
+        <summary><Shuffle size={16} /> One-time setup for hands-free 7Movies autoplay</summary>
+        <ol>
+          <li>Open <code>chrome://extensions</code>, turn on <b>Developer mode</b>, choose <b>Load unpacked</b>, and select this project’s <code>chrome-extension</code> folder.</li>
+          <li>Open the 7Movies episode or movie in its own tab. Click <b>MyTV Autoplay</b> in Chrome’s toolbar, pick this channel and a library, then press <b>Link tab &amp; enable autoplay</b>.</li>
+          <li>Share that tab as usual. When the video ends, the extension picks another title and starts it in the same tab, so the TV stream stays connected.</li>
+        </ol>
+      </details>
       {!data ? <div className="loading">Loading</div> : (
         <div className="casts">{data.map((ch) => <Card key={ch.id} ch={ch} mine={mine.find((c) => c.channel === ch.id)} quality={quality} reload={reload} />)}</div>
       )}
