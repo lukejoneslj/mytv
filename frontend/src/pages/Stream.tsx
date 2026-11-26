@@ -1,6 +1,6 @@
 import { Check, Ear, EarOff, MonitorUp, Pencil, Play, Plus, Square, Trash2, TriangleAlert, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { call, hhmm, usePoll, type LiveChannel } from '../api'
+import { call, usePoll, type LiveChannel } from '../api'
 import { goLive, listen, onEnded, QUALITIES, retitle, stop, stopOnServer, supported, useCasts, type Cast } from '../cast'
 import { useApp } from '../main'
 import { accent, StateTag, useAct, useToast } from '../ui'
@@ -29,8 +29,6 @@ function Card({ ch, mine, quality, reload }: { ch: LiveChannel; mine: Cast | und
   const [title, setTitle] = useState('')
   const [edit, setEdit] = useState<{ name: string; number: string } | null>(null)
   const [busy, setBusy] = useState(false)
-  const [t, setT] = useState(Date.now())
-  useEffect(() => { const i = setInterval(() => setT(Date.now()), 1000); return () => clearInterval(i) }, [])
   const elsewhere = ch.live && !mine
   const s = mine?.stats
   const start = async () => {
@@ -75,7 +73,6 @@ function Card({ ch, mine, quality, reload }: { ch: LiveChannel; mine: Cast | und
       </header>
       <div className="screen">
         {mine ? <Preview c={mine} /> : <div className="ident">{ch.number}</div>}
-        {(mine || ch.live) && <span className="badge">LIVE {hhmm((t - (mine?.started ?? (ch.started ?? 0) * 1000)) / 1000)}</span>}
       </div>
       <div className="cast-body">
         {mine ? (

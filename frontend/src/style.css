@@ -135,7 +135,7 @@ main { padding: 28px 32px 48px; max-width: 1720px; width: 100%; min-width: 0; }
 .cast header .state { margin-left: auto; } .tools { display: flex; }
 .rename { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto auto; gap: 6px; flex: 1; }
 .screen { position: relative; aspect-ratio: 16/9; background: #000; } .screen video { width: 100%; height: 100%; display: block; object-fit: contain; }
-.screen .ident { position: absolute; inset: 0; font-size: 92px; } .badge { position: absolute; left: 10px; top: 10px; background: var(--bad); color: #14130f; font-weight: 750; font-size: 12px; padding: 2px 8px; border-radius: 4px; font-variant-numeric: tabular-nums; }
+.screen .ident { position: absolute; inset: 0; font-size: 92px; }
 .cast-body { padding: 14px 18px 18px; display: grid; gap: 12px; } .cast-body h3 { font-size: 19px; }
 .cast .actions button.stop { background: var(--bad); border-color: var(--bad); color: #14130f; font-weight: 650; } .cast .actions button[aria-pressed=true] { background: var(--text); color: #14130f; }
 .meta { display: flex; gap: 14px; align-items: center; font-size: 13px; color: var(--dim); font-variant-numeric: tabular-nums; min-height: 19px; }
